@@ -36,19 +36,22 @@ public class AntsControlPanel {
 	
 	private JRadioButton foodRequiredAll = new JRadioButton("All");
 	private JRadioButton foodRequiredOne = new JRadioButton("One");
-
+	
 	private Timer stepTimer = new Timer(0, new ActionListener(){
 		public void actionPerformed(ActionEvent e){
 			step();
 		}
 	});
-
+	
+	/**
+	 * 右コントローラ宣言
+	 */
 	public AntsControlPanel(final Ants ants, final AdvancedControlPanel advancedPanel){
 		this.ants = ants;
 		this.advancedPanel = advancedPanel;
-
+		
 		Dimension controlDimension = new Dimension(75, 25);
-
+		
 		timerButton.setMinimumSize(controlDimension);
 		timerButton.setMaximumSize(controlDimension);
 		timerButton.setPreferredSize(controlDimension);
@@ -65,7 +68,7 @@ public class AntsControlPanel {
 				}
 			}
 		});
-
+		
 		final JButton stepButton = new JButton("Step");
 		stepButton.setMinimumSize(controlDimension);
 		stepButton.setMaximumSize(controlDimension);
@@ -79,11 +82,10 @@ public class AntsControlPanel {
 				step();
 			}
 		});
-
 		
 		JLabel antsLabel = new JLabel("Ant Count:");
 		antsLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
+		
 		final JSlider antsSlider = new JSlider();
 		antsSlider.setMinimumSize(controlDimension);
 		antsSlider.setMaximumSize(controlDimension);
@@ -92,20 +94,19 @@ public class AntsControlPanel {
 		antsSlider.setMaximum(200);
 		antsSlider.setMajorTickSpacing(100);
 		antsSlider.addChangeListener(new ChangeListener(){
-
+			
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				ants.setMaxAnts(antsSlider.getValue());
 				ants.repaint();
 			}
-
+			
 		});
 		antsSlider.setValue(100);
 		
 		JPanel blockPanel = new JPanel();
 		blockPanel.setLayout(new BoxLayout(blockPanel, BoxLayout.Y_AXIS));
 		blockPanel.setBorder(BorderFactory.createTitledBorder("Place Tile"));
-		
 		
 		JRadioButton obstacle = new JRadioButton("Obstacle");
 		obstacle.setFocusable(false);
@@ -115,6 +116,7 @@ public class AntsControlPanel {
 				ants.setTileToAdd(Ants.Tile.OBSTACLE);
 			}
 		});
+		
 		JRadioButton nest = new JRadioButton("Nest");
 		nest.setFocusable(false);
 		nest.addActionListener(new ActionListener(){
@@ -154,10 +156,9 @@ public class AntsControlPanel {
 		
 		blockPanel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 		
-		
 		JLabel sizeLabel = new JLabel("Size:");
 		sizeLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
+		
 		sizeComboBox = new JComboBox();
 		sizeComboBox.setFocusable(false);
 		sizeComboBox.setMinimumSize(controlDimension);
@@ -167,10 +168,10 @@ public class AntsControlPanel {
 		sizeComboBox.addItem("25");
 		sizeComboBox.addItem("50");
 		sizeComboBox.addItem("100");
-
+		
 		JLabel speedLabel = new JLabel("Speed:");
 		speedLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
+		
 		speedSlider = new JSlider();
 		speedSlider.setMinimumSize(controlDimension);
 		speedSlider.setMaximumSize(controlDimension);
@@ -186,8 +187,8 @@ public class AntsControlPanel {
 
 		});
 		speedSlider.setValue(2100);
-		
-		
+
+
 		JPanel foodRequiredPanel = new JPanel();
 		foodRequiredPanel.setLayout(new BoxLayout(foodRequiredPanel, BoxLayout.Y_AXIS));
 		foodRequiredPanel.setBorder(BorderFactory.createTitledBorder("Food Needed"));
@@ -225,8 +226,8 @@ public class AntsControlPanel {
 
 
 		foodRequiredOne.setSelected(true);
-		
-		
+
+
 		JLabel patternLabel = new JLabel("Pattern:");
 		patternLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
@@ -246,7 +247,7 @@ public class AntsControlPanel {
 					ants.setPattern((Ants.Pattern) patternComboBox.getSelectedItem());
 					patternComboBox.setSelectedIndex(-1);
 				}
-				
+
 			}
 		});
 
@@ -267,12 +268,12 @@ public class AntsControlPanel {
 				}
 				else if(sizeComboBox.getSelectedItem().equals("100")){
 					AntsControlPanel.this.ants.setGridSize(100, 100);
-				}	
+				}
 			}
 		});
 
 		sizeComboBox.setSelectedItem("50");
-		
+
 		final JCheckBox showAdvanced = new JCheckBox("Advanced");
 		showAdvanced.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 		showAdvanced.addActionListener(new ActionListener(){
@@ -281,11 +282,11 @@ public class AntsControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				advancedPanel.getPanel().setVisible(showAdvanced.isSelected());
 			}
-			
+
 		});
 		advancedPanel.getPanel().setVisible(showAdvanced.isSelected());
-		
-		
+
+
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(timerButton);
 		panel.add(stepButton);
@@ -297,7 +298,7 @@ public class AntsControlPanel {
 		panel.add(Box.createGlue());
 		panel.add(blockPanel);
 		panel.add(Box.createGlue());
-		
+
 		panel.add(sizeLabel);
 		panel.add(sizeComboBox);
 		panel.add(Box.createGlue());

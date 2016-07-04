@@ -4,7 +4,10 @@ import java.util.Map;
 
 public class Cell {
 
+
+	/**最大餌場フェロモンレベル(AdvancedCotrolPanelで設定される)*/
 	public static double maxFoodPheromoneLevel = 100.0;
+	/**最大餌場フェロモンレベル(AdvancedCotrolPanelで設定される)*/
 	public static double maxNestPheromoneLevel = 100.0;
 	public static double evaporationRate = .9;
 	private boolean hasObstacle;
@@ -12,21 +15,21 @@ public class Cell {
 	public Map<Cell, Double> foodPheromoneLevelMap = new HashMap<Cell, Double>();
 	public double nestPheromoneLevel = 1.0;
 	private boolean isGoal = false;
-	
+
 	int c;
 	int r;
-	
+
 	public Cell(int c, int r){
 		this.c = c;
 		this.r = r;
 	}
-	
+
 	public void setIsGoal(boolean isGoal){
 		this.isGoal = isGoal;
 	}
-	
+
 	public void step(){
-		
+
 		for(Cell food : foodPheromoneLevelMap.keySet()){
 			double foodPheromoneLevel = foodPheromoneLevelMap.get(food);
 			foodPheromoneLevel *= Cell.evaporationRate;
@@ -38,43 +41,43 @@ public class Cell {
 			}
 			foodPheromoneLevelMap.put(food, foodPheromoneLevel);
 		}
-		
+
 		nestPheromoneLevel *= Cell.evaporationRate;
 		if(nestPheromoneLevel < 1){
 			nestPheromoneLevel = 1;
 		}
-		
+
 		if(nestPheromoneLevel > Cell.maxNestPheromoneLevel){
 			nestPheromoneLevel = Cell.maxNestPheromoneLevel;
 		}
 	}
-
 	public void setFoodPheromone(Cell food, double pheromone){
+		//安全装置
 		if(pheromone > Cell.maxFoodPheromoneLevel){
 			pheromone = Cell.maxFoodPheromoneLevel;
 		}
 		foodPheromoneLevelMap.put(food, pheromone);
 	}
-	
+
 	public void setNestPheromone(double pheromone){
-		
+
 		nestPheromoneLevel = pheromone;
 		if(nestPheromoneLevel > Cell.maxNestPheromoneLevel){
 			nestPheromoneLevel = Cell.maxNestPheromoneLevel;
 		}
 	}
-	
+
 	public double getFoodPheromoneLevel(Cell food){
 		if(!foodPheromoneLevelMap.containsKey(food)){
 			return 1;
 		}
 		return foodPheromoneLevelMap.get(food);
 	}
-	
+
 	public double getNestPheromoneLevel(){
 		return nestPheromoneLevel;
 	}
-	
+
 	public boolean isBlocked(){
 		return hasObstacle;
 	}
@@ -93,5 +96,5 @@ public class Cell {
 
 	public void setHasNest(boolean hasNest) {
 		this.hasNest = hasNest;
-	}	
+	}
 }

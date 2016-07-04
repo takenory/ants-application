@@ -22,28 +22,28 @@ public class AdvancedControlPanel {
 	private Ants ants;
 	private JPanel panel = new JPanel();
 
-	
+
 	//minimum values for parameters
 	private final double minMaxpheromone = 10;
 	private final double minEvaporation = 2;
 	private final double minDropoff = 5;
 	private final double minTrail = 0;
 	private final double minStepsToMax = 100;
-	
+
 	//maximum values for parameters
 	private final double maxMaxpheromone = 100;
 	private final double maxEvaporation = 10;
 	private final double maxDropoff = 25;
 	private final double maxTrail = 100;
 	private final double maxStepsToMax = 2000;
-	
+
 	//start values for parameters
 	private double maxpheromone = maxMaxpheromone;
 	private double evaporation = minEvaporation;
 	private double dropoff = minDropoff;
 	private double chanceOfBestNext = 50;
 	private double stepsToMax = 1000;
-	
+
 	//when environment changes, timeout to adjust
 	private double changedTimeout = stepsToMax;
 
@@ -61,18 +61,19 @@ public class AdvancedControlPanel {
 	private final JSlider evaporationRateSlider = new JSlider();
 	private final JSlider dropoffRateSlider = new JSlider();
 	private final JSlider chanceOfBestNextSlider = new JSlider();
-
+	
+	/**下部数値制御部*/
 	public AdvancedControlPanel(final Ants ants){
 		this.ants = ants;
-
+		
 		ants.advancedControlPanel = this;
-
+		
 		Dimension controlDimension = new Dimension(75, 25);
-
+		
 		JLabel maxpheromoneLabel = new JLabel("Max pheromone");
 		maxpheromoneLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
-
+		
+		//フェロモン操作部を作成する。
 		maxpheromoneSlider.setMinimumSize(controlDimension);
 		maxpheromoneSlider.setMaximumSize(controlDimension);
 		maxpheromoneSlider.setPreferredSize(controlDimension);
@@ -80,23 +81,23 @@ public class AdvancedControlPanel {
 		maxpheromoneSlider.setMaximum((int) maxMaxpheromone);
 		maxpheromoneSlider.setMajorTickSpacing(100);
 		maxpheromoneSlider.addChangeListener(new ChangeListener(){
-
+			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-
+				
 				Cell.maxFoodPheromoneLevel = maxpheromoneSlider.getValue();
 				Cell.maxNestPheromoneLevel = maxpheromoneSlider.getValue();
 				ants.repaint();
-
+				
 			}
-
+			
 		});
 		maxpheromoneSlider.setValue((int) maxpheromone);
-
-
+		
+		
 		final JLabel deltapheromoneLabel = new JLabel("\u0394 pheromone");
 		deltapheromoneLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
+		
 		final JSlider deltapheromoneSlider = new JSlider();
 		deltapheromoneSlider.setMinimumSize(controlDimension);
 		deltapheromoneSlider.setMaximumSize(controlDimension);
@@ -105,29 +106,27 @@ public class AdvancedControlPanel {
 		deltapheromoneSlider.setMaximum(100);
 		deltapheromoneSlider.setMajorTickSpacing(100);
 		deltapheromoneSlider.addChangeListener(new ChangeListener(){
-
+			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-
+				
 				deltapheromone = ((double)deltapheromoneSlider.getValue());
-
+				
 			}
-
+			
 		});
 		deltapheromoneSlider.setValue((int) deltapheromone);
-
+		
 		JPanel pheromonePanel = new JPanel();
 		pheromonePanel.setLayout(new BoxLayout(pheromonePanel, BoxLayout.Y_AXIS));
 		pheromonePanel.add(maxpheromoneLabel);
 		pheromonePanel.add(maxpheromoneSlider);
 		pheromonePanel.add(deltapheromoneLabel);
 		pheromonePanel.add(deltapheromoneSlider);
-
-
+		
 		JLabel evaporationRateLabel = new JLabel("Evaporation");
 		evaporationRateLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
-
+		
 		evaporationRateSlider.setMinimumSize(controlDimension);
 		evaporationRateSlider.setMaximumSize(controlDimension);
 		evaporationRateSlider.setPreferredSize(controlDimension);
@@ -135,23 +134,22 @@ public class AdvancedControlPanel {
 		evaporationRateSlider.setMaximum((int) maxEvaporation);
 		evaporationRateSlider.setMajorTickSpacing(10);
 		evaporationRateSlider.addChangeListener(new ChangeListener(){
-
+			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-
+				
 				Cell.evaporationRate = (1000-evaporationRateSlider.getValue())/1000.0;
-
+				
 				ants.repaint();
-
+				
 			}
-
+			
 		});
 		evaporationRateSlider.setValue((int) evaporation);
-
-
+		
 		final JLabel deltaEvaporationLabel = new JLabel("\u0394 Evaporation");
 		deltaEvaporationLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-
+		
 		final JSlider deltaEvaporationSlider = new JSlider();
 		deltaEvaporationSlider.setMinimumSize(controlDimension);
 		deltaEvaporationSlider.setMaximumSize(controlDimension);
@@ -223,7 +221,7 @@ public class AdvancedControlPanel {
 		dropoffPanel.add(deltaDropoffLabel);
 		dropoffPanel.add(deltaDropoffSlider);
 
-		
+
 		JPanel trailPanel = new JPanel();
 		trailPanel.setLayout(new BoxLayout(trailPanel, BoxLayout.Y_AXIS));
 		trailPanel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
@@ -263,11 +261,11 @@ public class AdvancedControlPanel {
 			}
 		});
 		deltaTrailSlider.setValue((int) deltaTrail);
-			
+
 		JPanel stepsToMaxPanel = new JPanel();
 		stepsToMaxPanel.setLayout(new BoxLayout(stepsToMaxPanel, BoxLayout.Y_AXIS));
 		stepsToMaxPanel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-	
+
 		final JLabel stepsToMaxLabel = new JLabel("Adapt Time");
 		stepsToMaxLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
@@ -285,17 +283,17 @@ public class AdvancedControlPanel {
 			}
 		});
 		stepsToMaxSlider.setValue((int) stepsToMax);
-		
-		
+
+
 		stepsToMaxPanel.add(stepsToMaxLabel);
 		stepsToMaxPanel.add(stepsToMaxSlider);
-		
+
 
 		trailPanel.add(chanceOfBestNextLabel);
 		trailPanel.add(chanceOfBestNextSlider);
 		trailPanel.add(deltaTrailLabel);
 		trailPanel.add(deltaTrailSlider);
-	
+
 
 		adjustCheckBox.setSelected(true);
 		adjustCheckBox.addActionListener(new ActionListener(){
@@ -306,7 +304,7 @@ public class AdvancedControlPanel {
 				evaporationRateSlider.setEnabled(!adjustCheckBox.isSelected());
 				dropoffRateSlider.setEnabled(!adjustCheckBox.isSelected());
 				chanceOfBestNextSlider.setEnabled(!adjustCheckBox.isSelected());
-				
+
 				deltapheromoneSlider.setVisible(adjustCheckBox.isSelected());
 				deltapheromoneLabel.setVisible(adjustCheckBox.isSelected());
 				deltaEvaporationSlider.setVisible(adjustCheckBox.isSelected());
@@ -336,7 +334,6 @@ public class AdvancedControlPanel {
 		stepsToMaxSlider.setVisible(adjustCheckBox.isSelected());
 		stepsToMaxLabel.setVisible(adjustCheckBox.isSelected());
 		
-		
 		JButton aboutButton = new JButton("About");
 		aboutButton.addActionListener(new ActionListener(){
 
@@ -344,18 +341,15 @@ public class AdvancedControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				ants.showAboutFrame();
 			}
-			
+
 		});
-		
-		
+
+
 		JPanel checkBoxPanel = new JPanel();
 		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 		checkBoxPanel.add(adjustCheckBox);
 		checkBoxPanel.add(aboutButton);
-		
-		
-		
-		
+
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
 		panel.add(Box.createGlue());
@@ -372,11 +366,11 @@ public class AdvancedControlPanel {
 		panel.add(stepsToMaxPanel);
 		panel.add(Box.createGlue());
 	}
-
+	
 	public void environmentChanged(){
 		changedTimeout = 0;
 	}
-
+	
 	public void step(){
 
 		changedTimeout++;
@@ -391,7 +385,7 @@ public class AdvancedControlPanel {
 					break;
 				}
 			}
-			
+
 			//does every nest have a trail?
 			boolean allNestsHaveTrail = true;
 			for(Cell nest : ants.getNests()){
@@ -401,34 +395,34 @@ public class AdvancedControlPanel {
 				}
 			}
 
-			
+
 			if(changedTimeout >= stepsToMax && allFoodHasTrail && allNestsHaveTrail){
 				maxpheromone -= ((maxMaxpheromone-minMaxpheromone)/stepsToMax)*deltapheromone/stepsToMax;
 				evaporation -= ((maxEvaporation-minEvaporation)/stepsToMax)*deltaEvaporation/stepsToMax;
 				dropoff -= ((maxDropoff-minDropoff)/stepsToMax)*deltaDropoff/stepsToMax;
-				
-				chanceOfBestNext += ((maxTrail-minTrail)/stepsToMax)*deltaTrail/stepsToMax;	
+
+				chanceOfBestNext += ((maxTrail-minTrail)/stepsToMax)*deltaTrail/stepsToMax;
 			}
 			else{
 				maxpheromone += ((maxMaxpheromone-minMaxpheromone)/stepsToMax)*deltapheromone/stepsToMax;
 				evaporation += ((maxEvaporation-minEvaporation)/stepsToMax)*deltaEvaporation/stepsToMax;
 				dropoff += ((maxDropoff-minDropoff)/stepsToMax)*deltaDropoff/stepsToMax;
-				
+
 				chanceOfBestNext -= ((maxTrail-minTrail)/stepsToMax)*deltaTrail/stepsToMax;
 			}
-			
+
 			checkDeltas();
 
 			maxpheromoneSlider.setValue((int) maxpheromone);
 			evaporationRateSlider.setValue((int) evaporation);
 			dropoffRateSlider.setValue((int) dropoff);
-			
+
 			chanceOfBestNextSlider.setValue((int)chanceOfBestNext);
 		}
 	}
-	
+
 	private void checkDeltas(){
-		
+
 		if(maxpheromone < 0){
 			maxpheromone = 0;
 		}
@@ -438,11 +432,11 @@ public class AdvancedControlPanel {
 		if(dropoff < 0){
 			dropoff = 0;
 		}
-		
+
 		if(chanceOfBestNext < 0){
 			chanceOfBestNext = 0;
 		}
-		
+
 		if(maxpheromone > maxMaxpheromone){
 			maxpheromone = maxMaxpheromone;
 		}
