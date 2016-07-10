@@ -11,7 +11,10 @@ public class Cell {
 	public static double maxNestPheromoneLevel = 100.0;
 	public static double evaporationRate = .9;
 	private boolean hasObstacle;
+	private boolean hasAnt;
 	private boolean hasNest;
+	
+	
 	public Map<Cell, Double> foodPheromoneLevelMap = new HashMap<Cell, Double>();
 	public double nestPheromoneLevel = 1.0;
 	private boolean isGoal = false;
@@ -82,8 +85,16 @@ public class Cell {
 		return hasObstacle;
 	}
 
+	public boolean hasAnt(){
+		return hasAnt;
+	}
+	
 	public boolean isGoal() {
 		return isGoal;
+	}
+	
+	public void setHasAnt(boolean hasAnt) {
+		this.hasAnt = hasAnt;
 	}
 
 	public void setIsObstacle(boolean hasObstacle) {
@@ -97,4 +108,9 @@ public class Cell {
 	public void setHasNest(boolean hasNest) {
 		this.hasNest = hasNest;
 	}
+	
+
+	
+	
+	
 }

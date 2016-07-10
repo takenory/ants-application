@@ -36,6 +36,8 @@ public class AntsControlPanel {
 	
 	private JRadioButton foodRequiredAll = new JRadioButton("All");
 	private JRadioButton foodRequiredOne = new JRadioButton("One");
+	private JRadioButton RestrictBridge = new JRadioButton("Restrict");
+	private JRadioButton donotRestrictBridge = new JRadioButton("don't Restrict");
 	
 	private Timer stepTimer = new Timer(0, new ActionListener(){
 		public void actionPerformed(ActionEvent e){
@@ -91,7 +93,7 @@ public class AntsControlPanel {
 		antsSlider.setMaximumSize(controlDimension);
 		antsSlider.setPreferredSize(controlDimension);
 		antsSlider.setMinimum(1);
-		antsSlider.setMaximum(200);
+		antsSlider.setMaximum(500);//200から500に変更(0709宮本)
 		antsSlider.setMajorTickSpacing(100);
 		antsSlider.addChangeListener(new ChangeListener(){
 			
@@ -188,7 +190,48 @@ public class AntsControlPanel {
 		});
 		speedSlider.setValue(2100);
 
+		//0706 ここから追加（通れる橋を制限するかどうかのラジオボタン）
+		JPanel RestrictBridgePanel = new JPanel();
+		RestrictBridgePanel.setLayout(new BoxLayout(RestrictBridgePanel, BoxLayout.Y_AXIS));
+		RestrictBridgePanel.setBorder(BorderFactory.createTitledBorder("Restrict Bridge"));
+		RestrictBridgePanel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
+
+		RestrictBridge.setMinimumSize(controlDimension);
+		RestrictBridge.setMaximumSize(controlDimension);
+		RestrictBridge.setPreferredSize(controlDimension);
+		RestrictBridge.setFocusable(false);
+		RestrictBridge.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Ant.RestrictBridge = true;
+				advancedPanel.environmentChanged();
+			}
+
+		});
+
+		donotRestrictBridge.setFocusable(false);
+		donotRestrictBridge.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Ant.RestrictBridge = false;
+				advancedPanel.environmentChanged();
+			}
+		});
+
+		ButtonGroup RestrictBridgeGroup = new ButtonGroup();
+		RestrictBridgeGroup.add(RestrictBridge);
+		RestrictBridgeGroup.add(donotRestrictBridge);
+
+		RestrictBridgePanel.add(RestrictBridge);
+		RestrictBridgePanel.add(donotRestrictBridge);
+
+
+		donotRestrictBridge.setSelected(true);
+		//0706 ここまで追加
+		
+		//ここからコメントアウト
+		/*
 		JPanel foodRequiredPanel = new JPanel();
 		foodRequiredPanel.setLayout(new BoxLayout(foodRequiredPanel, BoxLayout.Y_AXIS));
 		foodRequiredPanel.setBorder(BorderFactory.createTitledBorder("Food Needed"));
@@ -226,6 +269,8 @@ public class AntsControlPanel {
 
 
 		foodRequiredOne.setSelected(true);
+		*/
+		//ここまでコメントアウト
 
 
 		JLabel patternLabel = new JLabel("Pattern:");
@@ -240,6 +285,11 @@ public class AntsControlPanel {
 		patternComboBox.addItem(Ants.Pattern.Clear);
 		patternComboBox.addItem(Ants.Pattern.Filled);
 		patternComboBox.addItem(Ants.Pattern.Random);
+		patternComboBox.addItem(Ants.Pattern.Bridge1);
+		//追加
+		patternComboBox.addItem(Ants.Pattern.Bridge2);
+		patternComboBox.addItem(Ants.Pattern.Bridge4);
+		
 		patternComboBox.addItemListener(new ItemListener(){
 			@Override
 			public void itemStateChanged(ItemEvent e) {
@@ -302,7 +352,7 @@ public class AntsControlPanel {
 		panel.add(sizeLabel);
 		panel.add(sizeComboBox);
 		panel.add(Box.createGlue());
-		panel.add(foodRequiredPanel);
+		panel.add(RestrictBridgePanel);
 		panel.add(Box.createGlue());
 		panel.add(patternLabel);
 		panel.add(patternComboBox);

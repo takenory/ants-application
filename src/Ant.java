@@ -22,6 +22,10 @@ public class Ant {
 	/**かみ砕いて持ち帰るることが可能かどうか*/
 	public static boolean allFoodRequired = false;
 	
+	///////追加
+	public static boolean RestrictBridge = false; //使える橋の制限があるかどうか
+	public static int numBridge = 1; //橋の数
+	
 	/**現在地*/
 	private int x;
 	
@@ -34,18 +38,70 @@ public class Ant {
 	/**盤面全体*/
 	Cell[][] world;
 	
+	
 	double maxPheromone = 10.0;
 	
 	int steps = 0;
 	
 	private Ants ants;
 	
-	public Ant(Cell startCell, Cell[][] world, Ants ants){
+	//★ 追加
+	private int num;
+	private boolean is_stop;
+//0708宮本
+	private int stop_count;
+//kimura_s
+    //橋北のアリか？
+    private boolean is_north;
+	//中心を通過するか？
+	private boolean path_center;
+//kimura_e
+//0710miura
+	//ひとつ前の座標	
+	private int bX = x, bY = y;
+	
+	public Ant(Cell startCell, Cell[][] world, Ants ants, int num){
 		this.x = startCell.c;
 		this.y = startCell.r;
 		this.world = world;
 		this.ants = ants;
+		//★ 追加
+		this.num = num;
+//kimura_s
+        this.is_north = false;
+        if (this.y < this.ants.getRows() / 2) {
+            this.is_north = true;
+        }
+//kimura_e
+
+
 	}
+	
+
+	
+	public int stop_count(boolean stop){
+		if(!stop) return this.stop_count = 0;
+		else return this.stop_count = this.stop_count + 1;
+	}
+	
+	public int stop_count0(){
+		return this.stop_count;
+	}
+	
+	public boolean isStop() {
+		return is_stop;
+	}
+//kimura_s
+	public int number() {
+		return this.num;
+	}
+    public boolean isNorth() {
+        return this.is_north;
+    }
+    public boolean pathCenter() {
+        return this.path_center;
+    }
+//kimura_e
 	
 	public void die(){
 		returnToNest = false;
@@ -57,11 +113,17 @@ public class Ant {
 			Cell nest = (Cell) nests.toArray()[nestIndex];
 			x = nest.c;
 			y = nest.r;
+
 		}
+//kimura_s
+        this.is_north = false;
+        if (this.y < this.ants.getRows() / 2) {
+            this.is_north = true;
+        }
+//kimura_e
 	}
 	
 	public void step(){
-		
 		double chanceToTakeBest = Math.random();
 		
 		steps++;
@@ -69,15 +131,13 @@ public class Ant {
 		foodFound.retainAll(ants.getFood());
 		
 		if(returnToNest){
-			
 			//帰巣ロジック
 			if(world[x][y].hasNest()){
 				//帰巣すると死ぬ
-				die();
+				die();	
 			}
 			
 			else{
-				
 				//アリの帰巣行動
 				double maxNestSoFar = 0;
 				Map<Cell, Double> maxFoodSoFarMap = new HashMap<Cell, Double>();
@@ -140,6 +200,7 @@ public class Ant {
 				}
 				
 				if(world[x][y].isGoal()){
+					//die();
 					//現在地が餌場ならフェロモンを設定
 					maxFoodSoFarMap.put(world[x][y], Cell.maxFoodPheromoneLevel);
 				}
@@ -160,7 +221,7 @@ public class Ant {
 					}
 				}
 				
-				else{ //give cells chance based on pheremone
+				else{ //give cells chance based on pheromone
 					//新規ルートを探す
 					double pheremonesSoFar = 0;
 					double goalPheromoneLevel = totalNeighborPheromones * Math.random();
@@ -176,11 +237,21 @@ public class Ant {
 			}
 		}
 		
+		// 餌を探す
 		else{ //look for food
 			
 			//餌場探索ロジック
 			if(world[x][y].isGoal()){
 				//餌場の発見時
+				
+				//★ 目的地に着いたらアリが死ぬ
+
+				ants.isnotAnt(x,y);
+//0710miura_s
+				ants.isnotAnt(bX, bY);
+//0710miura_e
+				die();
+								
 				foodFound.add(world[x][y]);
 				if(Ant.allFoodRequired){
 					if(foodFound.size() >= ants.getFood().size()){
@@ -197,7 +268,6 @@ public class Ant {
 					return;
 				}
 			}
-			
 			else if(world[x][y].hasNest()){
 				if(steps > 1){
 					//帰巣した場合
@@ -205,8 +275,11 @@ public class Ant {
 					return;
 				}
 			}
+						
+			//空白地帯の挙動		
+			int col = ants.getColumns();
+			int row = ants.getRows();		
 			
-			//空白地帯の挙動
 			double maxFoodSoFar = 0;
 			double maxNestSoFar = 0;
 			List<Cell> maxFoodCells = new ArrayList<Cell>();
@@ -214,6 +287,218 @@ public class Ant {
 			double totalNeighborPheromones = 0;
 			Map<Cell, Double> maxFoodSoFarMap = new HashMap<Cell, Double>();
 			
+			//アリに目的地を割り振る(0709宮本変更)
+			Set<Cell> foods = ants.getFood();
+			//int foodIndex = num%foods.size();
+			int foodIndex = num;
+			Cell Targetfood = (Cell)foods.toArray()[foodIndex];
+
+			
+			//アリが向かう橋を指定する
+			int[] Bridges;		
+			Bridges = new int[numBridge];
+			//橋のx座標
+			for(int i=0; i<numBridge; i++){
+				Bridges[i] = (i+1)*(col/(numBridge+1));
+			}
+			int TargetBridge;
+			int nearestBridge = 0;
+			//橋に進行方向の制限を与えない
+			if(!Ant.RestrictBridge){
+				//ランダムでも可
+				//一番近い橋へ
+				int tmp = 100;
+				for(int i = 0; i < numBridge; i++){
+					if(Math.abs(x - Bridges[i]) < tmp){
+						tmp = Math.abs(x - Bridges[i]);
+						nearestBridge = i;
+					}
+				}
+				TargetBridge = nearestBridge;
+			//橋に進行方向の制限を与える
+			}else{
+				//橋一本
+				if(numBridge == 1){
+					TargetBridge = 0;
+				//橋二本
+				}else if(numBridge == 2){
+					if(y < (int)row/2){
+						TargetBridge = 0;
+					}else{
+						TargetBridge = 1;
+					}
+				//橋三本
+				}else{
+					int tmp = 100;
+					if(y < (int)row/2){
+						if (Math.abs(x - Bridges[0]) < Math.abs(x - Bridges[2])){
+							TargetBridge = 0;
+						}else{
+							TargetBridge = 2;
+						}
+					}else{
+						if (Math.abs(x - Bridges[1]) < Math.abs(x - Bridges[3])){
+							TargetBridge = 1;
+						}else{
+							TargetBridge = 3;
+						}
+					}
+				}
+			}
+			
+			// マップの中心の座標を得る
+			// midcol : x座標の中心
+			// midrow : y座標の中心
+			int midcol = (int)col/2;
+			int midrow = (int)row/2;
+			int x0, x1, y0 = 0;
+
+//kimura_s
+			//中心に行く必要の有無を確認
+			int TargetTmp = 0;
+			int TargetBridge_left = 0;
+			if ((Targetfood.r < midrow) && (midrow + 3  < y)) {
+				this.path_center = true;
+				
+				//左側通行のための座標を得る(0709宮本)
+				TargetBridge_left = Bridges[TargetBridge]- 1; 
+				TargetTmp = Bridges[TargetBridge]+1;
+			}
+			else if ((Targetfood.r > midrow) && (midrow-+ 3 > y)) {
+				this.path_center = true;
+				
+				//左側通行のための座標を得る(0709宮本)
+				TargetBridge_left = Bridges[TargetBridge]+ 1; 
+				TargetTmp = Bridges[TargetBridge]-1;
+			}
+			else {
+				this.path_center = false;
+			}
+//kimura_s
+			
+//0709miyamoto_s
+			//現在地がターゲットの橋より左である
+			if(TargetBridge_left > x) x0 = 1;
+			//現在地がターゲットの橋より右である
+			else if(TargetBridge_left < x) x0 = -1;
+			//現在地はターゲットの橋の真下である
+			else x0 = 0;
+//0709miyamoto_e
+			
+			// 現在地が目的地より左である
+			if(Targetfood.c > x) x1 = 1;
+			// 現在地が目的地より右である
+			else if(Targetfood.c < x) x1 = -1;
+			// 現在地のx座標は目的地と同じである
+			else x1 = 0;
+			
+			// y座標を目的地に近づける
+//kimura_s
+			if (Targetfood.r > y) y0 = 1;
+			else if(Targetfood.r < y) y0 = -1;
+			else y0 = 0;
+//kimura_e
+
+			is_stop = false;
+//kimura_s
+			//if(y > midrow){
+			if (this.path_center) {
+//kimura_e		
+
+				if(!world[x + x0][y + y0].hasAnt()){
+					
+//0710miura_s
+					ants.isnotAnt(bX, bY);
+					bX = x;
+					bY = y;
+//0710_miura_e
+					
+//0709miyamoto_s
+					//ターゲットではない橋に入らないようにする
+					if(Math.abs(y - midrow) == 4){	
+
+						if(!(Math.abs((x + x0) - TargetBridge_left) < 3 
+								&& Math.abs((x + x0) - TargetTmp) < 3)){
+							x = x + x0;
+						}else{
+							y = y + y0;
+							x = x + x0;
+						}
+					}
+//0709miyamoto_e
+
+					else if(!world[x + x0][y + y0].isBlocked()){
+						x = x + x0;
+						y = y + y0;
+					}
+					else {
+						if(!world[x][y + y0].isBlocked()){
+							y = y + y0;
+						}else{
+							x = x + x0;
+						}
+					}
+					ants.isAnt(x,  y);
+				}
+				else {
+					is_stop = true;
+				}
+			}		
+			
+//0709miyamoto_s
+			//橋の上
+			else if(Math.abs(y - midrow) <= 3){	
+//0710miura_s
+				if(!world[x][y + y0].hasAnt()){
+					ants.isnotAnt(bX, bY);
+					bX = x;
+					bY = y;
+					y = y + y0;
+					ants.isAnt(x,  y);
+				}
+				else{
+					is_stop = true;
+				}
+//0710miura_e
+			}
+//0709miyamoto_e
+			//現在地が橋より上の場合
+			else {
+				//進んだ先が障害物でない場合
+				if(!world[x + x1][y + y0].hasAnt()){
+					
+//0710miura_s
+					ants.isnotAnt(bX, bY);
+					bX = x;
+					bY = y;
+//0710_miura_e
+					
+					if(!world[x + x1][y + y0].isBlocked()){					
+						//x座標を中心に近づける
+						if((x - Targetfood.c) != 0) {
+							x = x + x1;
+							y = y + y0;
+						}
+						else {
+							x = x + x1;
+							y = y + y0;
+						}	
+					}
+					else {
+						x = x - x1;
+						y = y + y0;
+					}
+//0710miura_s
+					ants.isAnt(x,  y);
+//0710miura_e
+				}
+				else {
+					is_stop = true;
+				}
+			}
+
+			//★ ここからコメントアウト
+			/*
 			for(int c = -1; c <=1; c++){
 				//餌場を探索
 				if(x+c < 0 || x+c >= world.length){
@@ -228,8 +513,10 @@ public class Ant {
 					else if(y+r < 0 || y+r >= world[0].length){
 						continue;
 					}
-					
+				
+					//移動候補セルがマップの端でも障害物でもなかったら
 					if(!world[x+c][y+r].isBlocked()){
+						
 						
 						allNeighborCells.add(world[x+c][y+r]);
 						
@@ -283,11 +570,13 @@ public class Ant {
 				}
 			}
 			
+			
 			if(world[x][y].hasNest()){
 				maxNestSoFar = Cell.maxNestPheromoneLevel;
 			}
 			
 			world[x][y].setNestPheromone(maxNestSoFar * Ant.dropoffRate);
+			
 			
 			if(Ant.bestCellNext > chanceToTakeBest){
 				if(!maxFoodCells.isEmpty()){
@@ -329,6 +618,7 @@ public class Ant {
 					}
 				}
 			}
+			★ ここまでコメントアウト */
 		}
 	}
 	
