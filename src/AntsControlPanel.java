@@ -54,6 +54,9 @@ public class AntsControlPanel {
 		
 		Dimension controlDimension = new Dimension(75, 25);
 		
+		//0711fukata追加：総ステップ数を表示するためのラベル
+		JLabel stepLabel=new JLabel();
+		
 		timerButton.setMinimumSize(controlDimension);
 		timerButton.setMaximumSize(controlDimension);
 		timerButton.setPreferredSize(controlDimension);
@@ -64,6 +67,9 @@ public class AntsControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				if(stepTimer.isRunning()){
 					pause();
+					//0711fukata追加：pauseボタンを押したとき、総ステップ数を表示
+					stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
+					stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 				}
 				else{
 					start();
@@ -82,6 +88,9 @@ public class AntsControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				pause();
 				step();
+				//0711fukata追加：stepボタンを押したとき、総ステップ数を表示
+				stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
+				stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 			}
 		});
 		
@@ -358,6 +367,9 @@ public class AntsControlPanel {
 		panel.add(patternComboBox);
 		panel.add(Box.createGlue());
 		panel.add(showAdvanced);
+		//0711fukata追加：stepLabelをパネルに追加
+		panel.add(Box.createGlue());
+		panel.add(stepLabel);
 	}
 
 	public void start(){

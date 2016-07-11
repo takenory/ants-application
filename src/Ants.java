@@ -513,7 +513,9 @@ public class Ants extends JPanel{
 	}
 
 	//int num = 0; 
+	int all_steps=0;//0711fukata追加：総ステップ数(宣言、初期化)
 	public void step(){
+		all_steps++;//0711fukata追加：総ステップ数をカウント
 		//num = (num + 1)%maxAnts;
 		//アリ生成
 		if(ants.size() < maxAnts){

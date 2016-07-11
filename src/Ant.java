@@ -58,7 +58,8 @@ public class Ant {
 //kimura_e
 //0710miura
 	//ひとつ前の座標	
-	private int bX = x, bY = y;
+	//private int bX = x, bY = y;
+	private int bX, bY;
 	
 	public Ant(Cell startCell, Cell[][] world, Ants ants, int num){
 		this.x = startCell.c;
@@ -78,7 +79,7 @@ public class Ant {
 	}
 	
 
-	
+//miyamoto_s
 	public int stop_count(boolean stop){
 		if(!stop) return this.stop_count = 0;
 		else return this.stop_count = this.stop_count + 1;
@@ -87,7 +88,8 @@ public class Ant {
 	public int stop_count0(){
 		return this.stop_count;
 	}
-	
+//miyamoto_e	
+
 	public boolean isStop() {
 		return is_stop;
 	}
@@ -245,8 +247,10 @@ public class Ant {
 				//餌場の発見時
 				
 				//★ 目的地に着いたらアリが死ぬ
-
-				ants.isnotAnt(x,y);
+				bX = x; //0711
+				bY = y; //0711
+				
+				//ants.isnotAnt(x,y);
 //0710miura_s
 				ants.isnotAnt(bX, bY);
 //0710miura_e
@@ -404,10 +408,20 @@ public class Ant {
 			//if(y > midrow){
 			if (this.path_center) {
 //kimura_e		
-
-				if(!world[x + x0][y + y0].hasAnt()){
+//0711miyamoto_s
+				boolean go_flg = false;
+				if(stop_count>10){
+					//10ステップごと
+					if(steps%100 < 50){
+						go_flg = true;
+					}
+				}
+//0711miyamoto_e
+				//0711miyamoto
+				if(!world[x + x0][y + y0].hasAnt() || go_flg){
 					
 //0710miura_s
+					//ants.isnotAnt(x, y);//0711
 					ants.isnotAnt(bX, bY);
 					bX = x;
 					bY = y;
@@ -441,15 +455,27 @@ public class Ant {
 					ants.isAnt(x,  y);
 				}
 				else {
+//0711miyamoto_s
+					
+//0711miyamoto_e
 					is_stop = true;
 				}
 			}		
 			
+			
 //0709miyamoto_s
 			//橋の上
 			else if(Math.abs(y - midrow) <= 3){	
+				
+				boolean go_flg = false;
+				if(stop_count>10){
+					//5ステップごと
+					if(steps%100 < 50){
+						go_flg = true;
+					}
+				}
 //0710miura_s
-				if(!world[x][y + y0].hasAnt()){
+				if(!world[x][y + y0].hasAnt() || go_flg){
 					ants.isnotAnt(bX, bY);
 					bX = x;
 					bY = y;
@@ -464,6 +490,16 @@ public class Ant {
 //0709miyamoto_e
 			//現在地が橋より上の場合
 			else {
+				
+				boolean go_flg = false;
+				System.out.println(steps);
+				if(stop_count>10){
+					//5ステップごと
+					if(steps%100 >= 50){
+						go_flg = true;
+					}
+				}
+				
 				//進んだ先が障害物でない場合
 				if(!world[x + x1][y + y0].hasAnt()){
 					
@@ -473,7 +509,7 @@ public class Ant {
 					bY = y;
 //0710_miura_e
 					
-					if(!world[x + x1][y + y0].isBlocked()){					
+					if(!world[x + x1][y + y0].isBlocked() || go_flg){					
 						//x座標を中心に近づける
 						if((x - Targetfood.c) != 0) {
 							x = x + x1;
@@ -487,6 +523,7 @@ public class Ant {
 					else {
 						x = x - x1;
 						y = y + y0;
+						//ants.isAnt(x,  y);
 					}
 //0710miura_s
 					ants.isAnt(x,  y);
