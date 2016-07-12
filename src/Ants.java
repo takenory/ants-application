@@ -43,8 +43,10 @@ public class Ants extends JPanel{
 	
 	private int maxAnts = 100;
 // 0712 takaki added_s
-  public static int stopCountOnDetour_1 = 25;  // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限 (1)
-  public static int stopCountOnDetour_2 = 50;  // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限 (2)
+  private int detourCount = 1;  // 迂回の選択段数
+  private int stopCountOnDetourMin = 5;   // 迂回（目的地から遠ざかるセルへの移動)を選択する場合の停止回数の最小値 
+  // 迂回するか判断するため停止回数リミットのリスト
+  public static ArrayList<Integer> stopCountOnDetourList = new ArrayList<Integer>();
 // 0712 takaki added_e
 	private List<Ant> ants = new ArrayList<Ant>();
 	
@@ -236,6 +238,11 @@ public class Ants extends JPanel{
 		
 		//初期化
 		killAllCells();
+
+// 0712 takaki added_s
+    // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限リストを再構築する
+    resetDetourSettings();
+// 0712 takaki added_e
 	}
 	
 	/**
@@ -592,10 +599,25 @@ public class Ants extends JPanel{
 		}
 	}
 
-// 0712 takaki added_s
-  public void setStopCountDetour(int slider_stop_count) {
-    this.stopCountOnDetour_1 = slider_stop_count * 5;
-    this.stopCountOnDetour_2 = slider_stop_count * 10;
+// 0712 takaki added_a
+  // 迂回（目的地から遠ざかるセルへの移動)を選択するための設定を再構築する
+  public void resetDetourSettings(){
+    this.stopCountOnDetourList.clear();
+    for(int i = 1; i < this.detourCount - 1; i++){
+      this.stopCountOnDetourList.add(this.stopCountOnDetourMin * (i));
+    }
+  }
+
+  // 迂回の選択段数をセットする
+  public void setDetourCount(int detour_count){
+    this.detourCount = detour_count;
+    resetDetourSettings();
+  }
+
+  // 迂回（目的地から遠ざかるセルへの移動)を選択する場合の停止回数の最小値をセットする 
+  public void setStopCountOnDetourMin(int min_count){
+    this.stopCountOnDetourMin = min_count;
+    resetDetourSettings();
   }
 // 0712 takaki added_e
 }

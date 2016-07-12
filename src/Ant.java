@@ -794,15 +794,11 @@ public class Ant {
               return ((Comparable) entry1.getValue()).compareTo((Comparable) entry2.getValue());
             }
           });
-          // 迂回するか判断するため停止回数リミットのリストを作成する
-          ArrayList<Integer> stopCountOnDetourList = new ArrayList<Integer>();
-          stopCountOnDetourList.add(this.ants.stopCountOnDetour_1);
-          stopCountOnDetourList.add(this.ants.stopCountOnDetour_2);
-          // 停止回数リミットごとに、迂回する(遠ざかる)セルの候補からセルを取り出して処理する
-          for(int i = 0; i < stopCountOnDetourList.size(); i++){
-            if(detouringCellsMap.size() >= i){
+          // 迂回するか判断するための停止回数リミットごとに、迂回する(遠ざかる)セルの候補からセルを取り出して処理する
+          for(int i = 0; i < this.ants.stopCountOnDetourList.size(); i++){
+            if(detouringCellsMap.size() > i){
               // 停止回数がリミットを超える場合
-              if(this.stop_count > stopCountOnDetourList.get(i)){
+              if(this.stop_count > this.ants.stopCountOnDetourList.get(i)){
                 // マッップからi番目にある移動先のセルを取り出す
                 Entry entry = mapValuesList.get(i);
                 Cell next_cell = (Cell) entry.getKey();

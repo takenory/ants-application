@@ -116,25 +116,43 @@ public class AntsControlPanel {
 		antsSlider.setValue(100);
 		
 // 0712 takaki added_s
-    JLabel detourStopCountLabel = new JLabel("Detour Stop Count:");
-    detourStopCountLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-    final JSlider detourStopCountSlider = new JSlider();
-    detourStopCountSlider.setMinimumSize(controlDimension);
-    detourStopCountSlider.setMaximumSize(controlDimension);
-    detourStopCountSlider.setPreferredSize(controlDimension);
-    detourStopCountSlider.setMinimum(1);
-    detourStopCountSlider.setMaximum(100);
-    detourStopCountSlider.setMajorTickSpacing(10);
-    detourStopCountSlider.addChangeListener(new ChangeListener(){
+    JLabel detourCountLabel = new JLabel("Detour Count:");
+    detourCountLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+    final JSlider detourCountSlider = new JSlider();
+    detourCountSlider.setMinimumSize(controlDimension);
+    detourCountSlider.setMaximumSize(controlDimension);
+    detourCountSlider.setPreferredSize(controlDimension);
+    detourCountSlider.setMinimum(1);
+    detourCountSlider.setMaximum(10);
+    detourCountSlider.setMajorTickSpacing(1);
+    detourCountSlider.addChangeListener(new ChangeListener(){
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        ants.setDetourCount(detourCountSlider.getValue());
+        ants.repaint();
+      }
+    });
+    detourCountSlider.setValue(1);
+
+    JLabel stopCountOnDetourMinLabel = new JLabel("Stop Count on Detour:");
+    stopCountOnDetourMinLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+    final JSlider stopCountOnDetourMinSlider = new JSlider();
+    stopCountOnDetourMinSlider.setMinimumSize(controlDimension);
+    stopCountOnDetourMinSlider.setMaximumSize(controlDimension);
+    stopCountOnDetourMinSlider.setPreferredSize(controlDimension);
+    stopCountOnDetourMinSlider.setMinimum(5);
+    stopCountOnDetourMinSlider.setMaximum(100);
+    stopCountOnDetourMinSlider.setMajorTickSpacing(5);
+    stopCountOnDetourMinSlider.addChangeListener(new ChangeListener(){
 
     @Override
     public void stateChanged(ChangeEvent e) {
-      ants.setStopCountDetour(detourStopCountSlider.getValue());
+      ants.setStopCountOnDetourMin(stopCountOnDetourMinSlider.getValue());
       ants.repaint();
     }
 
     });
-    detourStopCountSlider.setValue(1);
+    stopCountOnDetourMinSlider.setValue(5);
 // 0712 takaki added_e
 
 		JPanel blockPanel = new JPanel();
@@ -377,8 +395,10 @@ public class AntsControlPanel {
 		panel.add(antsLabel);
 		panel.add(antsSlider);
 // 0712 takaki added_s
-    panel.add(detourStopCountLabel);
-    panel.add(detourStopCountSlider);
+    panel.add(detourCountLabel);
+    panel.add(detourCountSlider);
+    panel.add(stopCountOnDetourMinLabel);
+    panel.add(stopCountOnDetourMinSlider);
 // 0712 takaki added_s
 		panel.add(Box.createGlue());
 		panel.add(blockPanel);
