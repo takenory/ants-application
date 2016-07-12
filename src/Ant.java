@@ -742,8 +742,8 @@ public class Ant {
       Map<Cell, Double> detouringCellsMap = new HashMap<Cell, Double>();
       for(Cell neighbor : allNeighborCells){
         // 現在の場所から目的地への移動距離と移動可能なセルから目的地への移動距離を取得する
-        double current_distance = Math.sqrt((TargetFood.c + this.x)^2 + (TargetFood.r + this.y)^2);
-        double neighbor_distance = Math.sqrt((TargetFood.c + neighbor.c)^2 + (TargetFood.r + neighbor.r)^2);
+        double current_distance = Math.sqrt((TargetFood.c - this.x)^2 + (TargetFood.r - this.y)^2);
+        double neighbor_distance = Math.sqrt((TargetFood.c - neighbor.c)^2 + (TargetFood.r - neighbor.r)^2);
         // 目的地への距離が近くなるセルの場合
         if(current_distance > neighbor_distance){
           // 近づくセルのマップに追加する
