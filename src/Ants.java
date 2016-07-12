@@ -42,6 +42,10 @@ public class Ants extends JPanel{
 	Cell [][] cellArray = new Cell[columns][rows];
 	
 	private int maxAnts = 100;
+// 0712 takaki added_s
+  public static int stopCountOnDetour_1 = 25;  // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限 (1)
+  public static int stopCountOnDetour_2 = 50;  // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限 (2)
+// 0712 takaki added_e
 	private List<Ant> ants = new ArrayList<Ant>();
 	
 	private Set<Cell> nests = new HashSet<Cell>();
@@ -456,7 +460,10 @@ public class Ants extends JPanel{
 				//★深田追加点：停止中のアリの色
 				//停止回数が多いほど濃い緑(40回以上は黒)
 				if(ant.isStop()) {	
-					int sc = ant.stop_count(true);
+//0711takaki change_s
+//          int sc = ant.stop_count(true);
+          int sc = ant.stop_count();
+//0711takaki change_e
 					//int sc = ant.stop_count0();
 					//stopCount[ant.number()]++;
 					//止まった回数が多いほど濃い緑（40回以上は黒）
@@ -477,9 +484,11 @@ public class Ants extends JPanel{
 //0709miyamoto_e
 				}
 				else if(!ant.isStop()){
-					//進んだら止まった回数をリセット
-					//stopCount[ant.number()]=0;
-					ant.stop_count(false);
+//0711takaki change_s
+//					//進んだら止まった回数をリセット
+//					//stopCount[ant.number()]=0;
+//					ant.stop_count(false);
+//0711takaki change_e
 				//橋北のアリは赤
 				if(ant.isNorth()) {
 					g.setColor(Color.RED);
@@ -582,4 +591,11 @@ public class Ants extends JPanel{
 			ants.remove(0);
 		}
 	}
+
+// 0712 takaki added_s
+  public void setStopCountDetour(int slider_stop_count) {
+    this.stopCountOnDetour_1 = slider_stop_count * 5;
+    this.stopCountOnDetour_2 = slider_stop_count * 10;
+  }
+// 0712 takaki added_e
 }

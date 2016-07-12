@@ -1,3 +1,6 @@
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,17 +81,21 @@ public class Ant {
 
 	}
 	
-
-//miyamoto_s
-	public int stop_count(boolean stop){
-		if(!stop) return this.stop_count = 0;
-		else return this.stop_count = this.stop_count + 1;
-	}
-	
-	public int stop_count0(){
-		return this.stop_count;
-	}
-//miyamoto_e	
+//0712 takaki changed_s
+////miyamoto_s
+//	public int stop_count(boolean stop){
+//		if(!stop) return this.stop_count = 0;
+//		else return this.stop_count = this.stop_count + 1;
+//	}
+//
+//	public int stop_count0(){
+//		return this.stop_count;
+//	}
+////miyamoto_e
+  public int stop_count(){
+    return this.stop_count;
+  }
+//0712 takaki changed_s
 
 	public boolean isStop() {
 		return is_stop;
@@ -241,14 +248,20 @@ public class Ant {
 		
 		// 餌を探す
 		else{ //look for food
+//0712 takaki added_s
+      bX = x; //0711
+      bY = y; //0711
+//0712 takaki added_e
 			
 			//餌場探索ロジック
 			if(world[x][y].isGoal()){
 				//餌場の発見時
 				
 				//★ 目的地に着いたらアリが死ぬ
-				bX = x; //0711
-				bY = y; //0711
+//0712 takaki changed_s
+//				bX = x; //0711
+//				bY = y; //0711
+//0712 takaki changed_e
 				
 				//ants.isnotAnt(x,y);
 //0710miura_s
@@ -533,6 +546,11 @@ public class Ant {
 					is_stop = true;
 				}
 			}
+//0712 takaki changed_s
+      if(is_stop==true){
+        stopOrGotoOtherCell(Targetfood);
+      }
+//0712 takaki changed_e
 
 			//★ ここからコメントアウト
 			/*
@@ -670,4 +688,145 @@ public class Ant {
 	public boolean isReturningHome() {
 		return returnToNest;
 	}
+
+//0712 takaki added_s
+  private void stopOrGotoOtherCell(Cell TargetFood) {
+    // 停止回数が0の場合
+    if (this.stop_count == 0){
+      this.is_stop = true;
+      this.stop_count = 1;
+    }
+    // 停止回数が0でない場合
+    else{
+			int other_x = this.x;
+			int other_y = this.y;
+      // 移動可能なセルの一覧を作成する
+			List<Cell> allNeighborCells = new ArrayList<Cell>();
+
+      // x方向の移動範囲 | x-1 | x+0 | x+1 |
+			for(int c = -1; c <=1; c++){
+        //検索先が盤面からはみ出したら無視
+				if(this.x+c < 0 || this.x+c >= world.length){
+					continue;
+				}
+
+        //                 | y+1 |
+        // y方向の移動範囲 | y+0 |
+        //                 | y-1 |
+				for(int r = -1; r <= 1; r++){
+          //現在位置は無視
+					if(c == 0 && r == 0){
+						continue;
+					}
+          //検索先が盤面からはみ出したら無視
+					else if(this.y+r < 0 || this.y+r >= world[0].length){
+						continue;
+					}
+
+          //移動先候補セルがマップの端でも障害物でなかった場合
+          //if(!world[this.x+c][this.y+r].isBlocked()){
+          //移動先候補セルがマップの端でも障害物でもなく && アリのいるセルでもなかった場合
+          //if(!world[this.x+c][this.y+r].isBlocked() && !world[this.x+c][this.y+r].hasAnt()){
+          //移動先候補セルがマップの端でも障害物でもなく && アリの巣でもなかった場合
+          if(!world[this.x+c][this.y+r].isBlocked() && !world[this.x+c][this.y+r].hasNest()){
+          //移動先候補セルがマップの端でも障害物でもなく && アリのいるセルでもなく && アリの巣でもなかった場合
+          //if(!world[this.x+c][this.y+r].isBlocked() && !world[this.x+c][this.y+r].hasAnt() && !world[this.x+c][this.y+r].hasNest()){
+          //移動先候補セルがマップの端でも障害物でなかった場合
+            allNeighborCells.add(world[this.x+c][this.y+r]);
+          }
+        }
+      }
+
+      // 移動可能なセルの一覧から目的地へ近づくセルと迂回する(遠ざかる)セルを求める
+      Map<Cell, Double> approachingCellsMap = new HashMap<Cell, Double>();
+      Map<Cell, Double> detouringCellsMap = new HashMap<Cell, Double>();
+      for(Cell neighbor : allNeighborCells){
+        // 現在の場所から目的地への移動距離と移動可能なセルから目的地への移動距離を取得する
+        double current_distance = Math.sqrt((TargetFood.c + this.x)^2 + (TargetFood.r + this.y)^2);
+        double neighbor_distance = Math.sqrt((TargetFood.c + neighbor.c)^2 + (TargetFood.r + neighbor.r)^2);
+        // 目的地への距離が近くなるセルの場合
+        if(current_distance > neighbor_distance){
+          // 近づくセルのマップに追加する
+          approachingCellsMap.put(neighbor, neighbor_distance);
+        }
+        else{
+          // 迂回するセルのマップに追加する
+          detouringCellsMap.put(neighbor, neighbor_distance);
+        }
+      }
+
+      // 近づくセルがある場合
+      if(approachingCellsMap.size() >0){
+        // 近づいていくセルのリストから移動距離が短いセルに移動する
+        List<Map.Entry> mapValuesList = new ArrayList<Map.Entry>(approachingCellsMap.entrySet());
+        Collections.sort(mapValuesList, new Comparator<Map.Entry>() {
+          @Override
+          public int compare(Entry entry1, Entry entry2) {
+            // 移動距離の昇順でソートする
+            return ((Comparable) entry1.getValue()).compareTo((Comparable) entry2.getValue());
+          }
+        });
+        // マッップから移動先のセルを順に取り出す
+        for (Entry entry : mapValuesList) {
+          Cell next_cell = (Cell) entry.getKey();
+          // セルにアリがいない場合
+          if(!world[next_cell.c][next_cell.r].hasAnt()){
+            // 移動する
+            this.ants.isnotAnt(this.x, this.y);
+            this.x = next_cell.c;
+            this.y = next_cell.r;
+            this.ants.isAnt(this.x,  this.y);
+            // 停止状態・停止回数をクリアする
+            this.is_stop = false;
+            return;
+          }
+        }
+      }
+      else{
+        // 迂回する(遠ざかる)セルがある場合
+        if(detouringCellsMap.size() > 0){
+          // 離れていくセルのリストから移動距離が一番短いセルを移動先として取り出す
+          List<Map.Entry> mapValuesList = new ArrayList<Map.Entry>(detouringCellsMap.entrySet());
+          Collections.sort(mapValuesList, new Comparator<Map.Entry>() {
+            @Override
+            public int compare(Entry entry1, Entry entry2) {
+              // 移動距離の昇順でソートする
+              return ((Comparable) entry1.getValue()).compareTo((Comparable) entry2.getValue());
+            }
+          });
+          // 迂回するか判断するため停止回数リミットのリストを作成する
+          ArrayList<Integer> stopCountOnDetourList = new ArrayList<Integer>();
+          stopCountOnDetourList.add(this.ants.stopCountOnDetour_1);
+          stopCountOnDetourList.add(this.ants.stopCountOnDetour_2);
+          // 停止回数リミットごとに、迂回する(遠ざかる)セルの候補からセルを取り出して処理する
+          for(int i = 0; i < stopCountOnDetourList.size(); i++){
+            if(detouringCellsMap.size() >= i){
+              // 停止回数がリミットを超える場合
+              if(this.stop_count > stopCountOnDetourList.get(i)){
+                // マッップからi番目にある移動先のセルを取り出す
+                Entry entry = mapValuesList.get(i);
+                Cell next_cell = (Cell) entry.getKey();
+                // セルにアリがいない場合
+                if(!world[next_cell.c][next_cell.r].hasAnt()){
+                  // 移動する
+                  this.ants.isnotAnt(this.x, this.y);
+                  this.x = next_cell.c;
+                  this.y = next_cell.r;
+                  this.ants.isAnt(this.x,  this.y);
+                  // 停止状態・停止回数をクリアする
+                  this.is_stop = false;
+                  this.stop_count = 0;
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+      // 停止状態、停止回数をカウントアップする
+      this.is_stop = true;
+      this.stop_count = this.stop_count + 1;
+    }
+  }
+//0712 takaki added_e
 }

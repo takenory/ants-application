@@ -38,7 +38,7 @@ public class AntsControlPanel {
 	private JRadioButton foodRequiredOne = new JRadioButton("One");
 	private JRadioButton RestrictBridge = new JRadioButton("Restrict");
 	private JRadioButton donotRestrictBridge = new JRadioButton("don't Restrict");
-	
+
 	private Timer stepTimer = new Timer(0, new ActionListener(){
 		public void actionPerformed(ActionEvent e){
 			step();
@@ -115,6 +115,28 @@ public class AntsControlPanel {
 		});
 		antsSlider.setValue(100);
 		
+// 0712 takaki added_s
+    JLabel detourStopCountLabel = new JLabel("Detour Stop Count:");
+    detourStopCountLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+    final JSlider detourStopCountSlider = new JSlider();
+    detourStopCountSlider.setMinimumSize(controlDimension);
+    detourStopCountSlider.setMaximumSize(controlDimension);
+    detourStopCountSlider.setPreferredSize(controlDimension);
+    detourStopCountSlider.setMinimum(1);
+    detourStopCountSlider.setMaximum(100);
+    detourStopCountSlider.setMajorTickSpacing(10);
+    detourStopCountSlider.addChangeListener(new ChangeListener(){
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+      ants.setStopCountDetour(detourStopCountSlider.getValue());
+      ants.repaint();
+    }
+
+    });
+    detourStopCountSlider.setValue(1);
+// 0712 takaki added_e
+
 		JPanel blockPanel = new JPanel();
 		blockPanel.setLayout(new BoxLayout(blockPanel, BoxLayout.Y_AXIS));
 		blockPanel.setBorder(BorderFactory.createTitledBorder("Place Tile"));
@@ -354,6 +376,10 @@ public class AntsControlPanel {
 		panel.add(Box.createGlue());
 		panel.add(antsLabel);
 		panel.add(antsSlider);
+// 0712 takaki added_s
+    panel.add(detourStopCountLabel);
+    panel.add(detourStopCountSlider);
+// 0712 takaki added_s
 		panel.add(Box.createGlue());
 		panel.add(blockPanel);
 		panel.add(Box.createGlue());
