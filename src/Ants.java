@@ -528,14 +528,24 @@ public class Ants extends JPanel{
 		return rows;
 	}
 
+	//ついか
+	int ant_count = 0;
+	
+	
 	//int num = 0; 
 	int all_steps=0;//0711fukata追加：総ステップ数(宣言、初期化)
 	public void step(){
 		all_steps++;//0711fukata追加：総ステップ数をカウント
 		//num = (num + 1)%maxAnts;
+		
+		if(all_steps == 500){
+			System.out.println("★"+ant_count);
+		}
+		
 		//アリ生成
 		if(ants.size() < maxAnts){
 			if(!nests.isEmpty()){
+				ant_count ++; //ついか
 				int num = (int) (food.size() * Math.random());
 				int nestIndex = (int) (nests.size() * Math.random());
 				// num(アリの生成番号(生成された順))を追加 : Antで目的地の割り振りに使用するため

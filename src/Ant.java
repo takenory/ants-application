@@ -263,7 +263,7 @@ public class Ant {
 //				bY = y; //0711
 //0712 takaki changed_e
 				
-				//ants.isnotAnt(x,y);
+				ants.isnotAnt(x,y);
 //0710miura_s
 				ants.isnotAnt(bX, bY);
 //0710miura_e
@@ -422,6 +422,7 @@ public class Ant {
 			if (this.path_center) {
 //kimura_e		
 //0711miyamoto_s
+				/*
 				boolean go_flg = false;
 				if(stop_count>10){
 					//10ステップごと
@@ -429,9 +430,10 @@ public class Ant {
 						go_flg = true;
 					}
 				}
+				*/
 //0711miyamoto_e
 				//0711miyamoto
-				if(!world[x + x0][y + y0].hasAnt() || go_flg){
+				if(!world[x + x0][y + y0].hasAnt()){
 					
 //0710miura_s
 					//ants.isnotAnt(x, y);//0711
@@ -479,7 +481,7 @@ public class Ant {
 //0709miyamoto_s
 			//橋の上
 			else if(Math.abs(y - midrow) <= 3){	
-				
+				/*
 				boolean go_flg = false;
 				if(stop_count>10){
 					//5ステップごと
@@ -487,8 +489,9 @@ public class Ant {
 						go_flg = true;
 					}
 				}
+				*/
 //0710miura_s
-				if(!world[x][y + y0].hasAnt() || go_flg){
+				if(!world[x][y + y0].hasAnt()){
 					ants.isnotAnt(bX, bY);
 					bX = x;
 					bY = y;
@@ -503,7 +506,7 @@ public class Ant {
 //0709miyamoto_e
 			//現在地が橋より上の場合
 			else {
-				
+				/*
 				boolean go_flg = false;
 				System.out.println(steps);
 				if(stop_count>10){
@@ -512,7 +515,7 @@ public class Ant {
 						go_flg = true;
 					}
 				}
-				
+				*/
 				//進んだ先が障害物でない場合
 				if(!world[x + x1][y + y0].hasAnt()){
 					
@@ -522,7 +525,7 @@ public class Ant {
 					bY = y;
 //0710_miura_e
 					
-					if(!world[x + x1][y + y0].isBlocked() || go_flg){					
+					if(!world[x + x1][y + y0].isBlocked()){					
 						//x座標を中心に近づける
 						if((x - Targetfood.c) != 0) {
 							x = x + x1;
