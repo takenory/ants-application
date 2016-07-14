@@ -26,8 +26,14 @@ import javax.swing.border.BevelBorder;
 public class Ants extends JPanel{
 
 	public static enum Pattern{
-		Clear, Random, Filled, Bridge1, Bridge2, Bridge4 ;
+		Clear, Bridge1, Bridge2, Bridge4 ;
 	}
+
+//0713miyamoto_s
+	public static enum Towns{
+		Clear, Town1, Town2, Town3, Town4, Town5;
+	}
+//0713miyamoto_e
 	
 	//ラジオボタンの選択肢(GOAL = FOODS :foodsは別のオブジェクトで宣言してるため)
 	public static enum Tile{
@@ -40,16 +46,25 @@ public class Ants extends JPanel{
 	int rows = 25;
 	int columns = 25;
 	Cell [][] cellArray = new Cell[columns][rows];
+	private int maxAnts = 500;
 	
-	private int maxAnts = 100;
+	
+//0713miyamoto_s
+	private boolean flg = true;
+	int all_steps = 0;
+	int AntisGoal = 0; //目的地にたどり着いた車の総数
+//0713miyamoto_e	
+	
+	
 // 0712 takaki added_s
-  private int detourCount = 1;  // 迂回の選択段数
-  private int stopCountOnDetourMin = 5;   // 迂回（目的地から遠ざかるセルへの移動)を選択する場合の停止回数の最小値 
-  // 迂回するか判断するため停止回数リミットのリスト
-  public static ArrayList<Integer> stopCountOnDetourList = new ArrayList<Integer>();
+	private int detourCount = 10;  // 迂回の選択段数
+	private int stopCountOnDetourMin = 5;   // 迂回（目的地から遠ざかるセルへの移動)を選択する場合の停止回数の最小値 
+	// 迂回するか判断するため停止回数リミットのリスト
+	public static ArrayList<Integer> stopCountOnDetourList = new ArrayList<Integer>();
 // 0712 takaki added_e
+ 
+  
 	private List<Ant> ants = new ArrayList<Ant>();
-	
 	private Set<Cell> nests = new HashSet<Cell>();
 	private Set<Cell> food = new HashSet<Cell>();
 	
@@ -62,9 +77,8 @@ public class Ants extends JPanel{
 	//最初に開くメッセージメッセージ小ウィンドウ
 	final JInternalFrame messageFrame = new JInternalFrame("Getting Started", false, true);
 
-	//★深田追加点
+	//深田追加点
 	private int[] stopCount=new int[maxAnts];
-	//
 	private int stop_count;
 	
 	/**網目状のウィンドウ部を制御*/
@@ -91,14 +105,13 @@ public class Ants extends JPanel{
 		//ウインドウの表示位置を指定
 		messageFrame.setLocation(300, 300);
 		//表示指示
-		messageFrame.setVisible(true);
-		
+		//messageFrame.setVisible(true);
 		
 		//Aboutボタンの動作を設定
 		JPanel aboutPanel = new JPanel();
 		aboutPanel.setLayout(new BoxLayout(aboutPanel, BoxLayout.Y_AXIS));
 		
-		//Aboudの表示文字列などを設定
+		//Aboutの表示文字列などを設定
 		aboutPanel.add(Box.createVerticalStrut(10));
 		aboutPanel.add(new JLabel("Auto-adjust: Automatically adjust parameters over time."));
 		aboutPanel.add(Box.createVerticalStrut(10));
@@ -177,7 +190,6 @@ public class Ants extends JPanel{
 				
 				//ステップ数の初期化（0に設定）
 				advancedControlPanel.environmentChanged();
-				
 				repaint();
 			}
 		});
@@ -243,6 +255,7 @@ public class Ants extends JPanel{
     // 迂回経路（目的地から遠ざかるセル)を選択する場合の停止回数上限リストを再構築する
     resetDetourSettings();
 // 0712 takaki added_e
+    
 	}
 	
 	/**
@@ -250,10 +263,6 @@ public class Ants extends JPanel{
 	 * @param columns
 	 * @param rows
 	 */
-	
-	
-
-	
 	
 	public void setGridSize(int columns, int rows){
 		this.columns = columns;
@@ -284,14 +293,49 @@ public class Ants extends JPanel{
 		}
 		repaint();
 	}
+
+//0713miyamoto_s
+	//橋を消す
+	public void killAllBridges(){
+		for(int column = 0; column < columns; column++){
+			for(int row = rows/2 - 3; row <= rows/2 + 3; row++){
+				cellArray[column][row] = new Cell(column, row);
+			}
+		}
+		if(advancedControlPanel != null){
+			advancedControlPanel.environmentChanged();
+		}
+		repaint();
+	}
+	//目的地と出発地点を消す
+	public void killAllTowns(){
+		nests.clear();
+		food.clear();
+		for(int column = 0; column < columns; column++){
+			for(int row = 0; row < rows; row++){
+				if(row < rows/2 - 3 || row > rows/2 + 3){
+					cellArray[column][row] = new Cell(column, row);
+				}
+			}
+		}
+		if(advancedControlPanel != null){
+			advancedControlPanel.environmentChanged();
+		}
+		repaint();
+	}
+//0713miyamoto_e
 	
 	/**
 	 * パターン変更時の処理
 	 */
-	public void setPattern(Pattern newPattern){
-		
-		killAllCells();
-		
+	public void setPattern(Pattern newPattern){		
+		//killAllCells(); //0713miyamoto
+		killAllBridges();
+		int seed = 2;
+		Random random = new Random(seed);
+		int randomX;
+		int randomY;
+		/*
 		if(newPattern.equals(Pattern.Filled)){
 			//すべてを障害物に設定する
 			for(int column = 0; column < columns; column++){
@@ -316,41 +360,41 @@ public class Ants extends JPanel{
 			cellArray[columns/2][rows/2].setHasNest(true);
 			nests.add(cellArray[columns/2][rows/2]);
 		}
+		*/	
 		
 		//橋を読み込む
-		//中心より±2列から±3行の範囲を橋とするための障害物を置く
 		//橋1本
-		else if(newPattern.equals(Pattern.Bridge1)){
+		if(newPattern.equals(Pattern.Bridge1)){
 			for(int column = 0; column < columns; column++){
 				for(int row = 0; row < rows; row++){
 					if((row >= rows/2 - 3 && row <= rows/2 + 3) && 
-							(column <= columns/2 - 2 ||column >= columns/2 + 2)){				
+							(column <= columns/2 - 2 ||column >= columns/2 + 1)){				
 						cellArray[column][row].setIsObstacle(true);
 						Ant.numBridge = 1;
 					}
 				}
 			}
-		//橋2本(0706追加)
+		//橋2本
 		}else if(newPattern.equals(Pattern.Bridge2)){
 			for(int column = 0; column < columns; column++){
 				for(int row = 0; row < rows; row++){
 					if((row >= rows/2 - 3 && row <= rows/2 + 3) &&
-							((column <= columns/3 - 2 || column >= columns/3 + 2) &&
-									(column <= 2*(columns/3) - 2 || column >= 2*(columns/3) + 2))){
+							((column <= columns/3 - 2 || column >= columns/3 + 1) &&
+									(column <= 2*(columns/3) - 2 || column >= 2*(columns/3) + 1))){
 						cellArray[column][row].setIsObstacle(true);
 						Ant.numBridge = 2;
 					}
 				}
 			}
-		//橋4本(0706追加)
+		//橋4本
 		}else if(newPattern.equals(Pattern.Bridge4)){
 			for(int column = 0; column < columns; column++){
 				for(int row = 0; row < rows; row++){
 					if((row >= rows/2 - 3 && row <= rows/2 + 3) &&
-							((column <= columns/5 - 2 || column >= columns/5 + 2) &&
-									(column <= 2*(columns/5) - 2 || column >= 2*(columns/5) + 2) &&
-									(column <= 3*(columns/5) - 2 || column >= 3*(columns/5) + 2) &&
-									(column <= 4*(columns/5) - 2 || column >= 4*(columns/5) + 2))){
+							((column <= columns/5 - 2 || column >= columns/5 + 1) &&
+									(column <= 2*(columns/5) - 2 || column >= 2*(columns/5) + 1) &&
+									(column <= 3*(columns/5) - 2 || column >= 3*(columns/5) + 1) &&
+									(column <= 4*(columns/5) - 2 || column >= 4*(columns/5) + 1))){
 						cellArray[column][row].setIsObstacle(true);
 						Ant.numBridge = 4;
 					}
@@ -361,6 +405,60 @@ public class Ants extends JPanel{
 		//再描画
 		repaint();
 	}
+	
+//0713miyamoto_s
+	//街描画
+	public void setTown(Towns newTown){
+		
+		killAllTowns();
+		int randomX;
+		int randomY;
+		int seed = 0;
+		Random random = new Random(seed);
+		
+		//街を配置
+		if(newTown.equals(Towns.Town1)){
+			seed = 12;
+			random = new Random(seed);		
+		}else if(newTown.equals(Towns.Town2)){
+			seed = 34;
+			random = new Random(seed);
+		}else if(newTown.equals(Towns.Town3)){
+			seed = 56;
+			random = new Random(seed);
+		}else if(newTown.equals(Towns.Town4)){
+			seed = 78;
+			random = new Random(seed);
+		}else if(newTown.equals(Towns.Town5)){
+			seed = 90;
+			random = new Random(seed);
+		}
+		
+		for(int i=0; i<15; i++){
+			randomX = random.nextInt(columns);
+			randomY = random.nextInt(rows/2 - 4);
+			cellArray[randomX][randomY].setHasNest(true);
+			nests.add(cellArray[randomX][randomY]);				
+			randomX = random.nextInt(columns);
+			randomY = random.nextInt(rows/2 - 4);
+			cellArray[randomX][randomY].setIsGoal(true);
+			food.add(cellArray[randomX][randomY]);		
+		}
+		for(int i=0; i<15; i++){
+			randomX = random.nextInt(columns);
+			randomY = random.nextInt(rows/2 - 4) + rows/2 + 4;
+			cellArray[randomX][randomY].setHasNest(true);
+			nests.add(cellArray[randomX][randomY]);				
+			randomX = random.nextInt(columns);
+			randomY = random.nextInt(rows/2 - 4) + rows/2 + 4;
+			cellArray[randomX][randomY].setIsGoal(true);
+			food.add(cellArray[randomX][randomY]);		
+		}
+		//再描画
+		repaint();
+	}
+//0713miyamoto_e
+	
 	
 	/**
 	 * グリッドの描画
@@ -463,51 +561,46 @@ public class Ants extends JPanel{
 				g.setColor(Color.BLUE);
 			}
 			else{
+				
 //kimura_s
-				//★深田追加点：停止中のアリの色
+				//深田追加点：停止中のアリの色
 				//停止回数が多いほど濃い緑(40回以上は黒)
 				if(ant.isStop()) {	
 //0711takaki change_s
-//          int sc = ant.stop_count(true);
-          int sc = ant.stop_count();
+// 			         int sc = ant.stop_count(true);
+					int sc = ant.stop_count();
 //0711takaki change_e
-					//int sc = ant.stop_count0();
-					//stopCount[ant.number()]++;
-					//止まった回数が多いほど濃い緑（40回以上は黒）
-					//g.setColor(new Color(0,255-num_count[ant.number()],0));//変化わかりづらい
-					/*
-					if((0<stopCount[ant.number()])&&(stopCount[ant.number()]<10))g.setColor(new Color(0,200,0));
-					else if((10<=stopCount[ant.number()])&&(stopCount[ant.number()]<20))g.setColor(new Color(0,150,0));
-					else if((20<=stopCount[ant.number()])&&(stopCount[ant.number()]<30))g.setColor(new Color(0,100,0));
-					else if((30<=stopCount[ant.number()])&&(stopCount[ant.number()]<40))g.setColor(new Color(0,50,0));
-					else g.setColor(new Color(0,0,0));
-					*/
+					
 //0709miyamoto_s
+
 					if((0<sc)&&(sc<10))g.setColor(new Color(0,200,0));
 					else if((10<=sc)&&(sc<20))g.setColor(new Color(0,150,0));
 					else if((20<=sc)&&(sc<30))g.setColor(new Color(0,100,0));
 					else if((30<=sc)&&(sc<40))g.setColor(new Color(0,50,0));
-					else g.setColor(new Color(0,0,0));
+					else g.setColor(new Color(0,0,0));					
 //0709miyamoto_e
 				}
 				else if(!ant.isStop()){
+					
 //0711takaki change_s
 //					//進んだら止まった回数をリセット
 //					//stopCount[ant.number()]=0;
 //					ant.stop_count(false);
 //0711takaki change_e
+					
 				//橋北のアリは赤
 				if(ant.isNorth()) {
-					g.setColor(Color.RED);
+					g.setColor(new Color(255,0,0));
 				}
 				//橋南のアリは黒
 				else {
-					g.setColor(Color.BLUE);
+					g.setColor(new Color(0,0,255));
 				}
 				}
 //kimura_e
+				
 			}
-			//塗りつぶし(フェロモン系より一回り小さい。)
+			//塗りつぶし(フェロモン系より一回り小さい)
 			g.fillRect(cellX+2, cellY+2, thisCellWidth-3, thisCellHeight-3);
 		}
 	}
@@ -527,29 +620,33 @@ public class Ants extends JPanel{
 	public int getRows(){
 		return rows;
 	}
-
-	//int num = 0; 
-	int all_steps=0;//0711fukata追加：総ステップ数(宣言、初期化)
+	
+	//int all_steps=0; //0711fukata追加：総ステップ数(宣言、初期化)
 	public void step(){
-		all_steps++;//0711fukata追加：総ステップ数をカウント
-		//num = (num + 1)%maxAnts;
+		all_steps++; //0711fukata追加：総ステップ数をカウント
+		
+		if(all_steps == 500){
+			count_AntisGoal(false);
+			//antscontrolpanel.PauseClick();
+			AntsControlPanel.pause();
+		}	
 		//アリ生成
 		if(ants.size() < maxAnts){
 			if(!nests.isEmpty()){
 				int num = (int) (food.size() * Math.random());
 				int nestIndex = (int) (nests.size() * Math.random());
-				// num(アリの生成番号(生成された順))を追加 : Antで目的地の割り振りに使用するため
 				ants.add(new Ant((Cell) nests.toArray()[nestIndex], cellArray, this, num));
-				//num = num + 1; 
 			}
 		}
 		else if(ants.size() > maxAnts){
+			
 //0709miyamoto_s
 			Ant ant = ants.get(0);
 			int x = ant.getCol();
 			int y = ant.getRow();
 			isnotAnt(x,y);
 //0709miyamoto_e
+			
 			ants.remove(0);
 		}
 		
@@ -589,17 +686,33 @@ public class Ants extends JPanel{
 	public void setMaxAnts(int maxAnts) {
 		this.maxAnts = maxAnts;
 		while(ants.size() > maxAnts){
+			
 //0709miyamoto_s
 			Ant ant = ants.get(0);
 			int x = ant.getCol();
 			int y = ant.getRow();
 			isnotAnt(x,y);
 //0709miyamoto_e
+			
 			ants.remove(0);
 		}
 	}
 
-// 0712 takaki added_a
+//0713miyamoto_s
+	//車が目的地に到着した総数をカウント
+	public void count_AntisGoal(boolean count_flg){
+		if(!count_flg){
+			flg = false;
+		}
+		
+		if(flg){
+			this.AntisGoal ++;
+			System.out.println(all_steps + "-" + this.AntisGoal);
+		}
+	}
+//0713miyamoto_e	
+	
+// 0712 takaki added_s
   // 迂回（目的地から遠ざかるセルへの移動)を選択するための設定を再構築する
   public void resetDetourSettings(){
     this.stopCountOnDetourList.clear();
