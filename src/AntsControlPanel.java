@@ -26,20 +26,32 @@ import javax.swing.event.ChangeListener;
  */
 public class AntsControlPanel {
 
-	private Ants ants;
+	//private Ants ants; //miyamoto
+	static Ants ants;
+	
 	private JPanel panel = new JPanel();
-	private JButton timerButton = new JButton("\u25BA");
+	
+	//private JButton timerButton = new JButton("\u25BA"); //miyamoto
+	static JButton timerButton = new JButton("\u25BA");
+	
 	private JSlider speedSlider;
 	private JComboBox patternComboBox;
-	private JComboBox sizeComboBox;
-	private final AdvancedControlPanel advancedPanel;
+	private JComboBox townComboBox; //miyamoto
+	private JComboBox sizeComboBox; 
+	
+	//private final AdvancedControlPanel advancedPanel; //miyamoto
+	static AdvancedControlPanel advancedPanel;
 	
 	private JRadioButton foodRequiredAll = new JRadioButton("All");
 	private JRadioButton foodRequiredOne = new JRadioButton("One");
 	private JRadioButton RestrictBridge = new JRadioButton("Restrict");
 	private JRadioButton donotRestrictBridge = new JRadioButton("don't Restrict");
 
-	private Timer stepTimer = new Timer(0, new ActionListener(){
+	//0711fukata追加：総ステップ数を表示するためのラベル //0713miyamoto
+	static JLabel stepLabel = new JLabel();
+	
+	//private Timer stepTimer = new Timer(0, new ActionListener(){
+	static Timer stepTimer = new Timer(0, new ActionListener(){
 		public void actionPerformed(ActionEvent e){
 			step();
 		}
@@ -53,10 +65,7 @@ public class AntsControlPanel {
 		this.advancedPanel = advancedPanel;
 		
 		Dimension controlDimension = new Dimension(75, 25);
-		
-		//0711fukata追加：総ステップ数を表示するためのラベル
-		JLabel stepLabel=new JLabel();
-		
+				
 		timerButton.setMinimumSize(controlDimension);
 		timerButton.setMaximumSize(controlDimension);
 		timerButton.setPreferredSize(controlDimension);
@@ -67,9 +76,12 @@ public class AntsControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				if(stepTimer.isRunning()){
 					pause();
+//0713miyamoto changed_s
 					//0711fukata追加：pauseボタンを押したとき、総ステップ数を表示
-					stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
-					stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+					//stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
+					//stepLabel.setText("\n" + "number of ants\n" + ants.AntisGoal);
+					//stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+//0713miyamoto changed_e
 				}
 				else{
 					start();
@@ -88,9 +100,11 @@ public class AntsControlPanel {
 			public void actionPerformed(ActionEvent e) {
 				pause();
 				step();
+//0713miyamoto changed_s
 				//0711fukata追加：stepボタンを押したとき、総ステップ数を表示
-				stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
-				stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+				//stepLabel.setText("\n"+"all steps:"+ants.all_steps+"\n");
+				//stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+//0713miyamoto changed_e
 			}
 		});
 		
@@ -102,8 +116,8 @@ public class AntsControlPanel {
 		antsSlider.setMaximumSize(controlDimension);
 		antsSlider.setPreferredSize(controlDimension);
 		antsSlider.setMinimum(1);
-		antsSlider.setMaximum(500);//200から500に変更(0709宮本)
-		antsSlider.setMajorTickSpacing(100);
+		antsSlider.setMaximum(500);//200から500に変更(0709miyamoto)
+		antsSlider.setMajorTickSpacing(500);
 		antsSlider.addChangeListener(new ChangeListener(){
 			
 			@Override
@@ -113,7 +127,7 @@ public class AntsControlPanel {
 			}
 			
 		});
-		antsSlider.setValue(100);
+		antsSlider.setValue(500);
 		
 // 0712 takaki added_s
     JLabel detourCountLabel = new JLabel("Detour Count:");
@@ -132,7 +146,7 @@ public class AntsControlPanel {
         ants.repaint();
       }
     });
-    detourCountSlider.setValue(1);
+    detourCountSlider.setValue(10);
 
     JLabel stopCountOnDetourMinLabel = new JLabel("Stop Count on Detour:");
     stopCountOnDetourMinLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
@@ -237,9 +251,9 @@ public class AntsControlPanel {
 			}
 
 		});
-		speedSlider.setValue(2100);
+		speedSlider.setValue(2050);
 
-		//0706 ここから追加（通れる橋を制限するかどうかのラジオボタン）
+//miyamoto_s
 		JPanel RestrictBridgePanel = new JPanel();
 		RestrictBridgePanel.setLayout(new BoxLayout(RestrictBridgePanel, BoxLayout.Y_AXIS));
 		RestrictBridgePanel.setBorder(BorderFactory.createTitledBorder("Restrict Bridge"));
@@ -277,9 +291,8 @@ public class AntsControlPanel {
 
 
 		donotRestrictBridge.setSelected(true);
-		//0706 ここまで追加
+//miyamoto_e
 		
-		//ここからコメントアウト
 		/*
 		JPanel foodRequiredPanel = new JPanel();
 		foodRequiredPanel.setLayout(new BoxLayout(foodRequiredPanel, BoxLayout.Y_AXIS));
@@ -319,10 +332,9 @@ public class AntsControlPanel {
 
 		foodRequiredOne.setSelected(true);
 		*/
-		//ここまでコメントアウト
-
-
-		JLabel patternLabel = new JLabel("Pattern:");
+		
+//miyamoto_s
+		JLabel patternLabel = new JLabel("Bridge:");
 		patternLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
 		patternComboBox = new JComboBox();
@@ -332,10 +344,9 @@ public class AntsControlPanel {
 		patternComboBox.setPreferredSize(controlDimension);
 
 		patternComboBox.addItem(Ants.Pattern.Clear);
-		patternComboBox.addItem(Ants.Pattern.Filled);
-		patternComboBox.addItem(Ants.Pattern.Random);
+		//patternComboBox.addItem(Ants.Pattern.Filled);
+		//patternComboBox.addItem(Ants.Pattern.Random);
 		patternComboBox.addItem(Ants.Pattern.Bridge1);
-		//追加
 		patternComboBox.addItem(Ants.Pattern.Bridge2);
 		patternComboBox.addItem(Ants.Pattern.Bridge4);
 		
@@ -351,6 +362,40 @@ public class AntsControlPanel {
 		});
 
 		patternComboBox.setSelectedIndex(-1);
+
+		
+		JLabel townLabel = new JLabel("town:");
+		townLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+
+		townComboBox = new JComboBox();
+		townComboBox.setFocusable(false);
+		townComboBox.setMinimumSize(controlDimension);
+		townComboBox.setMaximumSize(controlDimension);
+		townComboBox.setPreferredSize(controlDimension);
+
+		townComboBox.addItem(Ants.Towns.Clear);
+		//townComboBox.addItem(Ants.Pattern.Filled);
+		//townComboBox.addItem(Ants.Pattern.Random);
+		townComboBox.addItem(Ants.Towns.Town1);
+		//追加
+		townComboBox.addItem(Ants.Towns.Town2);
+		townComboBox.addItem(Ants.Towns.Town3);
+		townComboBox.addItem(Ants.Towns.Town4);
+		townComboBox.addItem(Ants.Towns.Town5);
+		
+		townComboBox.addItemListener(new ItemListener(){
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(townComboBox.getSelectedIndex() != -1){
+					ants.setTown((Ants.Towns) townComboBox.getSelectedItem());
+					townComboBox.setSelectedIndex(-1);
+				}
+
+			}
+		});
+
+		townComboBox.setSelectedIndex(-1);		
+//miyamoto_e
 
 		sizeComboBox.addItemListener(new ItemListener(){
 
@@ -394,16 +439,17 @@ public class AntsControlPanel {
 		panel.add(Box.createGlue());
 		panel.add(antsLabel);
 		panel.add(antsSlider);
+		
 // 0712 takaki added_s
     panel.add(detourCountLabel);
     panel.add(detourCountSlider);
     panel.add(stopCountOnDetourMinLabel);
     panel.add(stopCountOnDetourMinSlider);
 // 0712 takaki added_s
+    
 		panel.add(Box.createGlue());
 		panel.add(blockPanel);
 		panel.add(Box.createGlue());
-
 		panel.add(sizeLabel);
 		panel.add(sizeComboBox);
 		panel.add(Box.createGlue());
@@ -411,6 +457,12 @@ public class AntsControlPanel {
 		panel.add(Box.createGlue());
 		panel.add(patternLabel);
 		panel.add(patternComboBox);
+		
+//miyamoto_s
+		panel.add(townLabel);
+		panel.add(townComboBox);	
+//miyamoto_e
+		
 		panel.add(Box.createGlue());
 		panel.add(showAdvanced);
 		//0711fukata追加：stepLabelをパネルに追加
@@ -418,17 +470,24 @@ public class AntsControlPanel {
 		panel.add(stepLabel);
 	}
 
+	
 	public void start(){
 		stepTimer.restart();
 		timerButton.setText("Pause");
 	}
 
-	public void pause(){
+//miyamoto_s
+	//public void pause(){
+	public static void pause(){
 		stepTimer.stop();
 		timerButton.setText("\u25BA");
+		stepLabel.setText("\n" + "number of ants\n" + ants.AntisGoal);
+		stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 	}
-
-	public void step(){
+//miyamoto_e
+	
+	//public void step(){
+	static void step(){
 		ants.step();
 		advancedPanel.step();
 	}
@@ -436,4 +495,5 @@ public class AntsControlPanel {
 	public JPanel getPanel(){
 		return panel;
 	}
+	
 }
