@@ -804,7 +804,7 @@ public class Ant {
 	    						if(!world[next_cell.c][next_cell.r].hasAnt()){
 	    							// 移動する
 	    							this.ants.isnotAnt(this.x, this.y);
-	 	
+	    							this.x = next_cell.c;
 	    							this.y = next_cell.r;
 	    							this.ants.isAnt(this.x,  this.y);	
 	    							// 停止状態・停止回数をクリアする
