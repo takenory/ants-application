@@ -46,7 +46,7 @@ public class Ants extends JPanel{
 	int rows = 25;
 	int columns = 25;
 	Cell [][] cellArray = new Cell[columns][rows];
-	private int maxAnts = 500;
+	private int maxAnts = 100;
 	
 	
 //0713miyamoto_s

@@ -108,7 +108,7 @@ public class AntsControlPanel {
 			}
 		});
 		
-		JLabel antsLabel = new JLabel("Ant Count:");
+		JLabel antsLabel = new JLabel("Car Count:");
 		antsLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 		
 		final JSlider antsSlider = new JSlider();
@@ -116,8 +116,8 @@ public class AntsControlPanel {
 		antsSlider.setMaximumSize(controlDimension);
 		antsSlider.setPreferredSize(controlDimension);
 		antsSlider.setMinimum(1);
-		antsSlider.setMaximum(500);//200から500に変更(0709miyamoto)
-		antsSlider.setMajorTickSpacing(500);
+		antsSlider.setMaximum(500);
+		antsSlider.setMajorTickSpacing(50);
 		antsSlider.addChangeListener(new ChangeListener(){
 			
 			@Override
@@ -127,7 +127,7 @@ public class AntsControlPanel {
 			}
 			
 		});
-		antsSlider.setValue(500);
+		antsSlider.setValue(100);
 		
 // 0712 takaki added_s
     JLabel detourCountLabel = new JLabel("Detour Count:");
@@ -481,7 +481,7 @@ public class AntsControlPanel {
 	public static void pause(){
 		stepTimer.stop();
 		timerButton.setText("\u25BA");
-		stepLabel.setText("\n" + "number of ants\n" + ants.AntisGoal);
+		stepLabel.setText("\n" + "number of cars\n" + ants.AntisGoal);
 		stepLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 	}
 //miyamoto_e
